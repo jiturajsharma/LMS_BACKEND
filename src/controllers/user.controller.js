@@ -63,11 +63,11 @@ const registerUser = asyncHandler(async (req, res) => {
     // Create a new user in the database
     const user = await User.create({
         fullName,
-        avatar: avatar.url,
+        avatar,
         email,
         password,
     });
-
+// console.log({user})
     // Retrieve the created user from the database (excluding password and refreshToken)
     const createdUser = await User.findById(user._id).select("-password -refreshToken");
 
