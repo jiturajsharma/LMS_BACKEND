@@ -119,5 +119,40 @@ const loginUser = asyncHandler(async(req,  res) =>{
 })
 
 
+const logoutUser = asyncHandler(async (req, res) => {
+    try {
+        // Assuming 'options' is declared with the correct cookie configuration
+        const options = { /* your cookie options here */ };
 
-export { registerUser , loginUser }
+        // Unset refreshToken in the user document
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user._id,
+            {
+                $unset: {
+                    refreshToken: 1
+                }
+            },
+            {
+                new: true
+            }
+        );
+
+        // Check if user was found and updated
+        if (!updatedUser) {
+            return res.status(404).json(new ApiResponse(404, {}, "User not found"));
+        }
+
+        // Clear cookies
+        res.clearCookie("accessToken", options);
+        res.clearCookie("refreshToken", options);
+
+        return res.status(200).json(new ApiResponse(200, {}, "User logged out"));
+    } catch (error) {
+        // Handle errors
+        // console.error(error);
+        return res.status(500).json(new ApiResponse(500, {}, "Internal Server Error"));
+    }
+});
+
+
+export { registerUser , loginUser , logoutUser }
